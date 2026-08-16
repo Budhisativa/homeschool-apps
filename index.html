@@ -1,0 +1,1296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interactive U.S. Federal Government Diagram</title>
+<style>
+:root{
+  --bg:#ececed;
+  --panel-bg:#ffffff;
+  --ink:#101820;
+  --line:#cbd5e1;
+  --blue:#1e558a;
+  --blue-dark:#11385f;
+  --blue-light:#357ab8;
+  --red:#ad2024;
+  --red-dark:#751114;
+  --red-light:#d94d52;
+  --red-btn:#ea8d88;
+  --gold:#cda024;
+  --gold-dark:#8c690d;
+  --gold-light:#e2b849;
+  --gold-card:#dfab33;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+header{
+  max-width:1420px;
+  margin:auto;
+  padding:22px 20px 10px;
+  text-align:center;
+}
+h1{
+  margin:0 0 6px;
+  font-size:clamp(1.6rem,2.8vw,2.4rem);
+  color:#15273b;
+}
+header p{margin:0;color:#556677;font-size:1.02rem}
+main{max-width:1420px;margin:auto;padding:10px 20px 36px}
+.tool-card{
+  background:var(--panel-bg);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:16px 18px;
+  margin-bottom:14px;
+  box-shadow:0 3px 12px rgba(0,0,0,0.04);
+}
+.tool-grid{
+  display:grid;
+  grid-template-columns:1.05fr 1fr;
+  gap:18px;
+}
+@media(max-width:920px){
+  .tool-grid{grid-template-columns:1fr}
+}
+label{
+  display:block;
+  font-weight:700;
+  font-size:.93rem;
+  margin-bottom:6px;
+  color:#24364a;
+}
+.input-row{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+input,select{
+  width:100%;
+  min-height:42px;
+  border:2px solid #b8c9dc;
+  border-radius:8px;
+  padding:8px 12px;
+  font:inherit;
+  color:var(--ink);
+  background:#fff;
+}
+input:focus,select:focus{
+  outline:3px solid #8ec1f7;
+  border-color:#1c6cb8;
+}
+.btn{
+  min-height:42px;
+  border:0;
+  border-radius:8px;
+  padding:8px 14px;
+  background:#e3ebf4;
+  color:#1c354e;
+  font:inherit;
+  font-weight:700;
+  cursor:pointer;
+  white-space:nowrap;
+  transition:background .15s,transform .1s;
+}
+.btn:hover{background:#d2e1ee}
+.btn-primary{
+  background:#1e558a;
+  color:#fff;
+}
+.btn-primary:hover{background:#133c63}
+.hint{
+  margin:6px 0 0;
+  color:#5c6f82;
+  font-size:.87rem;
+}
+
+/* DIAGRAM CONTAINER */
+.diagram-stage{
+  background:#fff;
+  border:1px solid #caced4;
+  border-radius:18px;
+  padding:24px 20px 18px;
+  box-shadow:0 6px 24px rgba(0,0,0,0.06);
+  position:relative;
+}
+
+/* TOP CONSTITUTION BADGE */
+.top-badge-wrap{
+  display:flex;
+  justify-content:center;
+  margin-bottom:18px;
+}
+.top-badge{
+  background:linear-gradient(180deg,#356b9c,#1b4874);
+  border:3px solid #13385c;
+  color:#fff;
+  border-radius:16px;
+  padding:10px 26px;
+  text-align:center;
+  font-weight:800;
+  line-height:1.15;
+  box-shadow:0 4px 10px rgba(0,0,0,0.15);
+  cursor:pointer;
+  transition:transform .15s,box-shadow .15s;
+}
+.top-badge:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 14px rgba(0,0,0,0.22);
+}
+.top-badge .t1{font-size:1.22rem;display:block}
+.top-badge .t2{font-size:1.45rem;display:block;letter-spacing:-0.2px}
+
+/* THREE COLUMNS */
+.columns{
+  display:grid;
+  grid-template-columns:1fr 1.22fr 1fr;
+  gap:18px;
+  align-items:stretch;
+}
+@media(max-width:980px){
+  .columns{grid-template-columns:1fr}
+}
+
+.col-branch{
+  border-radius:24px 24px 16px 16px;
+  border:4px solid;
+  padding:12px 14px 18px;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  box-shadow:0 8px 18px rgba(0,0,0,0.12);
+}
+
+.roof{
+  height:70px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  margin-top:-6px;
+}
+.roof svg{
+  width:48px;
+  height:48px;
+  fill:#fff;
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,0.25));
+}
+.branch-banner{
+  text-align:center;
+  font-weight:900;
+  font-size:1.12rem;
+  color:#fff;
+  letter-spacing:.3px;
+  margin:2px 0 14px;
+  text-shadow:0 1px 2px rgba(0,0,0,0.4);
+}
+.branch-banner span{
+  font-weight:400;
+}
+
+/* LEGISLATIVE */
+.col-leg{
+  background:linear-gradient(180deg,#245d93 0%,#1b4c7c 100%);
+  border-color:#10365c;
+}
+.congress-box{
+  background:#143e68;
+  border-radius:22px;
+  padding:16px 12px 12px;
+  border:2px solid #0f3050;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+.congress-title{
+  text-align:center;
+  color:#fff;
+  font-size:1.65rem;
+  font-weight:900;
+  margin-bottom:14px;
+  cursor:pointer;
+  padding:4px;
+  border-radius:8px;
+}
+.congress-title:hover{background:rgba(255,255,255,0.12)}
+.chambers-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  flex:1;
+}
+.chamber-card{
+  background:linear-gradient(180deg,#3172af,#22598e);
+  border:2px solid #164069;
+  border-radius:18px;
+  color:#fff;
+  padding:24px 8px 18px;
+  text-align:center;
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  transition:transform .15s,box-shadow .15s,background .15s;
+}
+.chamber-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 6px 14px rgba(0,0,0,0.3);
+  background:linear-gradient(180deg,#3a81c4,#2765a0);
+}
+.chamber-card svg{
+  width:46px;
+  height:46px;
+  fill:#fff;
+  margin-bottom:10px;
+}
+.chamber-card strong{
+  font-size:1.25rem;
+  line-height:1.1;
+  display:block;
+}
+.chamber-card small{
+  font-size:.98rem;
+  margin-top:4px;
+  opacity:.95;
+  display:block;
+}
+
+/* EXECUTIVE */
+.col-exe{
+  background:linear-gradient(180deg,#b32428 0%,#8d181b 100%);
+  border-color:#680f12;
+}
+.pres-circle{
+  width:180px;
+  height:180px;
+  border-radius:50%;
+  background:linear-gradient(180deg,#b32428,#7d1215);
+  border:4px solid #5a0c0e;
+  margin:4px auto 10px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  text-align:center;
+  box-shadow:0 6px 14px rgba(0,0,0,0.25);
+  cursor:pointer;
+  transition:transform .15s,box-shadow .15s;
+}
+.pres-circle:hover{
+  transform:scale(1.04);
+  box-shadow:0 8px 18px rgba(0,0,0,0.35);
+}
+.pres-circle svg{
+  width:44px;
+  height:44px;
+  fill:#fff;
+  margin-bottom:4px;
+}
+.pres-circle span{
+  font-size:1.35rem;
+  font-weight:900;
+  line-height:1.08;
+}
+.arrow-down{
+  display:flex;
+  justify-content:center;
+  margin:2px 0 4px;
+}
+.arrow-down svg{
+  width:20px;
+  height:20px;
+  fill:#6a0f12;
+}
+.dept-container{
+  background:#911b1f;
+  border:3px solid #630e11;
+  border-radius:18px;
+  padding:8px 10px 10px;
+  color:#fff;
+}
+.dept-header{
+  text-align:center;
+  font-size:1.2rem;
+  font-weight:900;
+  margin-bottom:8px;
+  text-shadow:0 1px 2px rgba(0,0,0,0.3);
+}
+.dept-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:6px;
+}
+.dept-btn{
+  background:#e8958f;
+  border:2px solid #6e1619;
+  border-radius:8px;
+  color:#111;
+  font-weight:900;
+  font-size:.82rem;
+  line-height:1.05;
+  min-height:44px;
+  padding:4px 3px;
+  text-align:center;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:transform .12s,background .12s,box-shadow .12s;
+}
+.dept-btn:hover{
+  transform:translateY(-2px);
+  background:#f4aaa5;
+  box-shadow:0 4px 8px rgba(0,0,0,0.2);
+}
+.dept-row4{
+  grid-column:1 / -1;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:6px;
+  padding:0 20px;
+  margin-top:2px;
+}
+@media(max-width:560px){
+  .dept-grid{grid-template-columns:repeat(2,1fr)}
+  .dept-row4{grid-template-columns:1fr;padding:0}
+}
+
+/* JUDICIAL */
+.col-jud{
+  background:linear-gradient(180deg,#c99622 0%,#a0730d 100%);
+  border-color:#785404;
+}
+.jud-box{
+  display:flex;
+  flex-direction:column;
+  flex:1;
+}
+.scotus-card{
+  background:linear-gradient(180deg,#dca52b,#be8812);
+  border:3px solid #7c5806;
+  border-radius:20px;
+  color:#111;
+  padding:20px 12px 16px;
+  text-align:center;
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  transition:transform .15s,box-shadow .15s;
+  box-shadow:0 4px 10px rgba(0,0,0,0.15);
+}
+.scotus-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 8px 16px rgba(0,0,0,0.25);
+  background:linear-gradient(180deg,#e5b23a,#ca941c);
+}
+.scotus-card svg{
+  width:48px;
+  height:48px;
+  fill:#fff;
+  margin-bottom:8px;
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+}
+.scotus-card strong{
+  font-size:1.6rem;
+  font-weight:900;
+  display:block;
+}
+.jud-arrow{
+  display:flex;
+  justify-content:center;
+  margin:6px 0;
+}
+.jud-arrow svg{
+  width:18px;
+  height:18px;
+  fill:#785404;
+}
+.court-card{
+  background:linear-gradient(180deg,#dba62b,#bf8913);
+  border:3px solid #7c5806;
+  border-radius:14px;
+  color:#111;
+  font-size:1.35rem;
+  font-weight:900;
+  padding:14px 10px;
+  text-align:center;
+  cursor:pointer;
+  transition:transform .15s,box-shadow .15s;
+  box-shadow:0 4px 10px rgba(0,0,0,0.15);
+}
+.court-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 14px rgba(0,0,0,0.25);
+  background:linear-gradient(180deg,#e5b33c,#ca951d);
+}
+
+/* CHECKS AND BALANCES BOTTOM BAR */
+.checks-bar{
+  margin-top:24px;
+  padding:14px 18px;
+  background:#f2f2f0;
+  border-top:3px solid #d4d7dc;
+  border-bottom:3px solid #d4d7dc;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+  cursor:pointer;
+  transition:background .15s;
+}
+.checks-bar:hover{
+  background:#e8e8e4;
+}
+.checks-title{
+  font-size:1.55rem;
+  font-weight:900;
+  color:#111;
+  letter-spacing:-0.2px;
+}
+.checks-items{
+  display:flex;
+  flex:1;
+  justify-content:space-around;
+  gap:14px;
+  flex-wrap:wrap;
+}
+.check-step{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:1.02rem;
+  font-weight:700;
+  color:#222;
+}
+.check-step svg{
+  width:32px;
+  height:24px;
+  flex-shrink:0;
+}
+.check-step.leg-check svg{fill:#1e558a}
+.check-step.exe-check svg{fill:#ad2024}
+.check-step.jud-check svg{fill:#b5800d}
+
+/* SEARCH HIGHLIGHTING */
+.search-hit{
+  outline:4px solid #ffea00 !important;
+  box-shadow:0 0 0 7px rgba(255,234,0,0.6),0 8px 20px rgba(0,0,0,0.3) !important;
+  animation:pulse 1.2s infinite alternate;
+}
+@keyframes pulse{
+  from{transform:scale(1.02)}
+  to{transform:scale(1.05)}
+}
+.filter-hidden{
+  opacity:0.25;
+  filter:grayscale(0.85);
+}
+
+/* MODAL STYLES */
+dialog{
+  border:0;
+  border-radius:20px;
+  padding:0;
+  width:min(780px,94vw);
+  box-shadow:0 24px 80px rgba(0,0,0,0.45);
+}
+dialog::backdrop{
+  background:rgba(12,25,40,0.7);
+  backdrop-filter:blur(3px);
+}
+.modal{
+  padding:26px;
+  max-height:84vh;
+  overflow-y:auto;
+}
+.modal-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  border-bottom:2px solid var(--line);
+  padding-bottom:14px;
+}
+.modal h2{
+  margin:4px 0 0;
+  font-size:1.65rem;
+  color:#15283c;
+}
+.modal-tag{
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:99px;
+  font-size:.82rem;
+  font-weight:800;
+  letter-spacing:.3px;
+  text-transform:uppercase;
+  background:#e8f1fa;
+  color:#1e558a;
+}
+.close-btn{
+  background:#e8edf3;
+  color:#22364a;
+  border:0;
+  border-radius:10px;
+  padding:8px 14px;
+  font-weight:800;
+  cursor:pointer;
+  font-size:1rem;
+}
+.close-btn:hover{background:#d5e0eb}
+.modal-body{margin-top:14px}
+.modal-body p{line-height:1.6;font-size:1.02rem;color:#2c3e50}
+.info-list{
+  list-style:none;
+  padding:0;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:10px;
+  margin:16px 0;
+}
+.info-list li{
+  background:#f6f9fc;
+  border:1px solid #dce5ef;
+  border-radius:10px;
+  padding:12px;
+}
+.info-list b{display:block;color:#18324e;margin-bottom:3px}
+.gov-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:12px 18px;
+  border-radius:10px;
+  background:#1e558a;
+  color:#fff;
+  text-decoration:none;
+  font-weight:700;
+  font-size:1rem;
+  margin-top:14px;
+  transition:background .15s;
+}
+.gov-btn:hover{background:#11385c}
+.note{
+  color:#6b7c8f;
+  font-size:.9rem;
+  margin-top:16px;
+  border-top:1px dashed #d8e2ed;
+  padding-top:10px;
+}
+footer{
+  max-width:1420px;
+  margin:auto;
+  padding:12px 20px 28px;
+  color:#5d6f82;
+  font-size:.88rem;
+  text-align:center;
+}
+</style>
+</head>
+<body>
+
+<!-- SVG SYMBOL DEFINITIONS -->
+<svg style="display:none">
+  <!-- Capitol Dome Icon (Legislative) -->
+  <symbol id="icon-capitol" viewBox="0 0 100 100">
+    <path d="M50 8 L50 14 M47 14 H53 V18 H47 Z M41 18 C41 24 59 24 59 18 Z" stroke="currentColor" stroke-width="2" fill="currentColor"/>
+    <path d="M36 32 C36 21 64 21 64 32 Z" fill="currentColor"/>
+    <rect x="33" y="32" width="34" height="4" fill="currentColor"/>
+    <rect x="35" y="36" width="30" height="12" fill="currentColor"/>
+    <rect x="38" y="38" width="2.5" height="10" fill="#245d93"/>
+    <rect x="44" y="38" width="2.5" height="10" fill="#245d93"/>
+    <rect x="53.5" y="38" width="2.5" height="10" fill="#245d93"/>
+    <rect x="59.5" y="38" width="2.5" height="10" fill="#245d93"/>
+    <polygon points="14,56 86,56 50,48" fill="currentColor"/>
+    <rect x="20" y="59" width="6" height="24" fill="currentColor"/>
+    <rect x="31" y="59" width="6" height="24" fill="currentColor"/>
+    <rect x="42" y="59" width="6" height="24" fill="currentColor"/>
+    <rect x="52" y="59" width="6" height="24" fill="currentColor"/>
+    <rect x="63" y="59" width="6" height="24" fill="currentColor"/>
+    <rect x="74" y="59" width="6" height="24" fill="currentColor"/>
+    <rect x="16" y="83" width="68" height="4" fill="currentColor"/>
+    <rect x="10" y="87" width="80" height="5" fill="currentColor"/>
+  </symbol>
+
+  <!-- Person Icon (Executive) -->
+  <symbol id="icon-person" viewBox="0 0 100 100">
+    <circle cx="50" cy="30" r="16" fill="currentColor"/>
+    <path d="M20 86 C20 62 32 54 50 54 C68 54 80 62 80 86 Z" fill="currentColor"/>
+  </symbol>
+
+  <!-- Courthouse Icon (Judicial) -->
+  <symbol id="icon-courthouse" viewBox="0 0 100 100">
+    <polygon points="12,38 88,38 50,14" fill="currentColor"/>
+    <rect x="18" y="38" width="64" height="5" fill="currentColor"/>
+    <rect x="23" y="46" width="9" height="34" fill="currentColor"/>
+    <rect x="38" y="46" width="9" height="34" fill="currentColor"/>
+    <rect x="53" y="46" width="9" height="34" fill="currentColor"/>
+    <rect x="68" y="46" width="9" height="34" fill="currentColor"/>
+    <rect x="16" y="80" width="68" height="5" fill="currentColor"/>
+    <rect x="10" y="85" width="80" height="6" fill="currentColor"/>
+  </symbol>
+
+  <!-- Down arrow -->
+  <symbol id="icon-down" viewBox="0 0 24 24">
+    <path d="M12 4 L12 18 M6 13 L12 19 L18 13" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </symbol>
+
+  <!-- Curved flow arrow -->
+  <symbol id="icon-curved-arrow" viewBox="0 0 40 24">
+    <path d="M4 6 C 14 6, 20 18, 32 18" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <polygon points="28,12 38,18 28,24" fill="currentColor"/>
+  </symbol>
+</svg>
+
+<header>
+  <h1>United States Federal Government</h1>
+  <p>Interactive guide to the three branches, Congress, 15 executive departments, and federal courts</p>
+</header>
+
+<main>
+  <!-- TOP CONTROLS -->
+  <section class="tool-card">
+    <div class="tool-grid">
+      <!-- DIAGRAM SEARCH -->
+      <div>
+        <label for="search">Search the Diagram</label>
+        <div class="input-row">
+          <input id="search" type="search" placeholder="Try: Justice, FBI, Senator, Treasury, Supreme Court, Defense…">
+          <button id="clear" class="btn" type="button">Clear</button>
+        </div>
+        <p id="searchStatus" class="hint" aria-live="polite">Type to filter and highlight matching parts. Click any box to open details.</p>
+      </div>
+
+      <!-- CONGRESSIONAL MEMBER LOOKUP -->
+      <div>
+        <label for="memberSearch">Find Your Senators &amp; Representative</label>
+        <div class="input-row">
+          <input id="memberSearch" type="search" placeholder="Enter Name, State (e.g. CA), District, or ZIP">
+          <select id="memberType" aria-label="Member search type" style="max-width:170px">
+            <option value="members">Congress.gov</option>
+            <option value="senate">Senate Directory</option>
+            <option value="house">House (ZIP)</option>
+            <option value="address">By Address</option>
+          </select>
+          <button id="memberGo" class="btn btn-primary" type="button">Search ↗</button>
+        </div>
+        <p class="hint">Opens the official verified government lookup directly in a new browser tab.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTERACTIVE DIAGRAM STAGE (EXACT VISUAL MATCH) -->
+  <section class="diagram-stage" aria-label="Interactive U.S. Federal Government Diagram">
+    
+    <!-- CONSTITUTION BADGE -->
+    <div class="top-badge-wrap">
+      <div class="top-badge item" data-key="constitution" tabindex="0" role="button" aria-label="The People and U.S. Constitution">
+        <span class="t1">The People</span>
+        <span class="t2">U.S. Constitution</span>
+      </div>
+    </div>
+
+    <!-- THREE BRANCH COLUMNS -->
+    <div class="columns">
+      
+      <!-- 1. LEGISLATIVE BRANCH -->
+      <article class="col-branch col-leg">
+        <div class="roof">
+          <svg><use href="#icon-capitol"/></svg>
+        </div>
+        <div class="branch-banner">LEGISLATIVE BRANCH <span>— Makes Laws</span></div>
+        
+        <div class="congress-box">
+          <div class="congress-title item" data-key="congress" tabindex="0" role="button">Congress</div>
+          <div class="chambers-grid">
+            
+            <!-- SENATE -->
+            <div class="chamber-card item" data-key="senate" tabindex="0" role="button" aria-label="Senate (100 Senators)">
+              <svg><use href="#icon-capitol"/></svg>
+              <strong>Senate</strong>
+              <small>(100 Senators)</small>
+            </div>
+
+            <!-- HOUSE OF REPRESENTATIVES -->
+            <div class="chamber-card item" data-key="house" tabindex="0" role="button" aria-label="House of Representatives">
+              <svg><use href="#icon-capitol"/></svg>
+              <strong>House of<br>Representatives</strong>
+            </div>
+
+          </div>
+        </div>
+      </article>
+
+      <!-- 2. EXECUTIVE BRANCH -->
+      <article class="col-branch col-exe">
+        <div class="roof">
+          <!-- Curved arch top header -->
+        </div>
+        <div class="branch-banner">EXECUTIVE BRANCH <span>— Carries Out Laws</span></div>
+
+        <!-- PRESIDENT CIRCLE -->
+        <div class="pres-circle item" data-key="president" tabindex="0" role="button" aria-label="President and Vice President">
+          <svg><use href="#icon-person"/></svg>
+          <span>President &amp;<br>Vice President</span>
+        </div>
+
+        <div class="arrow-down">
+          <svg><use href="#icon-down"/></svg>
+        </div>
+
+        <!-- 15 DEPARTMENTS -->
+        <div class="dept-container">
+          <div class="dept-header">15 Executive Departments</div>
+          <div class="dept-grid">
+            <button class="dept-btn item" data-key="state" type="button">State</button>
+            <button class="dept-btn item" data-key="treasury" type="button">Treasury</button>
+            <button class="dept-btn item" data-key="defense" type="button">Defense</button>
+            <button class="dept-btn item" data-key="doj" type="button">Justice</button>
+
+            <button class="dept-btn item" data-key="interior" type="button">Interior</button>
+            <button class="dept-btn item" data-key="agriculture" type="button">Agriculture</button>
+            <button class="dept-btn item" data-key="commerce" type="button">Commerce</button>
+            <button class="dept-btn item" data-key="labor" type="button">Labor</button>
+
+            <button class="dept-btn item" data-key="hhs" type="button">Health &amp;<br>Human Services</button>
+            <button class="dept-btn item" data-key="hud" type="button">Housing &amp; Urban<br>Development</button>
+            <button class="dept-btn item" data-key="transportation" type="button">Transportation</button>
+            <button class="dept-btn item" data-key="energy" type="button">Energy</button>
+
+            <div class="dept-row4">
+              <button class="dept-btn item" data-key="education" type="button">Education</button>
+              <button class="dept-btn item" data-key="va" type="button">Veterans<br>Affairs</button>
+              <button class="dept-btn item" data-key="dhs" type="button">Homeland<br>Security</button>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 3. JUDICIAL BRANCH -->
+      <article class="col-branch col-jud">
+        <div class="roof">
+          <svg><use href="#icon-courthouse"/></svg>
+        </div>
+        <div class="branch-banner">JUDICIAL BRANCH <span>— Interprets Laws</span></div>
+
+        <div class="jud-box">
+          <!-- SUPREME COURT -->
+          <div class="scotus-card item" data-key="scotus" tabindex="0" role="button" aria-label="Supreme Court">
+            <svg><use href="#icon-courthouse"/></svg>
+            <strong>Supreme Court</strong>
+          </div>
+
+          <div class="jud-arrow"><svg><use href="#icon-down"/></svg></div>
+
+          <!-- COURTS OF APPEALS -->
+          <div class="court-card item" data-key="appeals" tabindex="0" role="button" aria-label="Courts of Appeals">
+            Courts of Appeals
+          </div>
+
+          <div class="jud-arrow"><svg><use href="#icon-down"/></svg></div>
+
+          <!-- DISTRICT COURTS -->
+          <div class="court-card item" data-key="district" tabindex="0" role="button" aria-label="District Courts">
+            District Courts
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- CHECKS AND BALANCES STRIP -->
+    <div class="checks-bar item" data-key="checks" tabindex="0" role="button" aria-label="Checks and Balances information">
+      <div class="checks-title">Checks and Balances</div>
+      <div class="checks-items">
+        <div class="check-step leg-check">
+          <svg><use href="#icon-curved-arrow"/></svg>
+          <span>Congress checks<br>President</span>
+        </div>
+        <div class="check-step exe-check">
+          <svg><use href="#icon-curved-arrow"/></svg>
+          <span>President appoints judges<br>/ can veto bills</span>
+        </div>
+        <div class="check-step jud-check">
+          <svg><use href="#icon-curved-arrow"/></svg>
+          <span>Courts review laws<br>and actions</span>
+        </div>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<!-- DETAIL MODAL DIALOG -->
+<dialog id="infoDialog" aria-labelledby="modalTitle">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <span id="modalTag" class="modal-tag"></span>
+        <h2 id="modalTitle"></h2>
+      </div>
+      <button class="close-btn" type="button" onclick="document.querySelector('#infoDialog').close()">Close ×</button>
+    </div>
+    <div class="modal-body" id="modalContent"></div>
+  </div>
+</dialog>
+
+<footer>
+  All official government website links open in a new tab. Designed as an accurate, interactive guide to the United States Federal Government.
+</footer>
+
+<script>
+// COMPLETE GOVERNMENT KNOWLEDGE BASE
+const DATA = {
+  constitution: {
+    tag: 'Constitutional Foundation',
+    title: 'The People & U.S. Constitution',
+    desc: 'The United States Constitution is the supreme law of the land. Established by "We the People," it sets up the framework for the three distinct branches of federal government, balancing powers and protecting individual liberties.',
+    url: 'https://www.archives.gov/founding-docs/constitution',
+    linkText: 'Read the U.S. Constitution at National Archives',
+    keywords: ['people', 'preamble', 'article', 'bill of rights', 'framers', 'founding'],
+    facts: [
+      ['Preamble', 'Establishes sovereignty resting with the people.'],
+      ['Article I', 'Assigns all federal legislative power to Congress.'],
+      ['Article II', 'Vests executive power in the President of the United States.'],
+      ['Article III', 'Establishes the judicial power in the Supreme Court and federal courts.']
+    ]
+  },
+  congress: {
+    tag: 'Legislative Branch',
+    title: 'Congress of the United States',
+    desc: 'Congress is the bicameral lawmaking body of the federal government, composed of the Senate and the House of Representatives. To enact a federal law, identical legislation must pass both chambers and be signed by the President (or enacted over a presidential veto).',
+    url: 'https://www.congress.gov/',
+    linkText: 'Explore Congress.gov Legislation & Records',
+    keywords: ['capitol', 'bills', 'legislation', 'lawmakers', 'statutes', 'override', 'bicameral', 'power of the purse'],
+    facts: [
+      ['Chambers', 'Senate (100 members) and House of Representatives (435 voting members).'],
+      ['Powers', 'Pass federal laws, levy taxes, coin money, regulate interstate commerce, and declare war.'],
+      ['Oversight', 'Conducts hearings, controls the federal budget ("power of the purse"), and oversees executive operations.']
+    ]
+  },
+  senate: {
+    tag: 'Legislative Chamber',
+    title: 'United States Senate',
+    desc: 'The Senate represents the states equally, with exactly two senators elected from each of the 50 states for staggered six-year terms.',
+    url: 'https://www.senate.gov/senators/senators-contact.htm',
+    linkText: 'View Official Senate Directory & Senators',
+    keywords: ['senator', 'senators', 'upper chamber', 'filibuster', 'confirmations', 'treaty', 'advice and consent'],
+    facts: [
+      ['Size & Terms', '100 Senators serving 6-year terms; 1/3 elected every two years.'],
+      ['Advice & Consent', 'Confirms presidential nominations for Cabinet secretaries, federal judges, and ambassadors.'],
+      ['Treaties', 'Approves international treaties by a two-thirds supermajority vote.'],
+      ['Trial of Impeachments', 'Conducts impeachment trials for federal officials.']
+    ]
+  },
+  house: {
+    tag: 'Legislative Chamber',
+    title: 'House of Representatives',
+    desc: 'The House is the chamber closest to the population. Its 435 voting seats are apportioned among the 50 states based on population determined by the decennial Census.',
+    url: 'https://www.house.gov/representatives/find-your-representative',
+    linkText: 'Find Your Representative by ZIP Code',
+    keywords: ['representative', 'representatives', 'congressman', 'congresswoman', 'district', 'speaker', 'impeach', 'revenue bills'],
+    facts: [
+      ['Size & Terms', '435 voting representatives elected every two years, plus 6 non-voting delegates.'],
+      ['Revenue Bills', 'All bills for raising revenue must originate in the House.'],
+      ['Impeachment Power', 'Holds the sole power to impeach federal officials.'],
+      ['Leadership', 'Presided over by the Speaker of the House, who is second in the presidential line of succession.']
+    ]
+  },
+  president: {
+    tag: 'Executive Leadership',
+    title: 'President & Vice President',
+    desc: 'The President of the United States leads the Executive Branch, serves as Commander in Chief of the Armed Forces, and is responsible for faithfully executing the laws enacted by Congress. The Vice President is first in line of succession and presides over the Senate.',
+    url: 'https://www.whitehouse.gov/administration/',
+    linkText: 'Visit The White House Administration',
+    keywords: ['trump', 'vance', 'potus', 'commander in chief', 'cabinet', 'veto', 'executive order', 'oval office', 'white house'],
+    facts: [
+      ['President', 'Donald J. Trump'],
+      ['Vice President', 'J. D. Vance'],
+      ['Powers', 'Veto or sign legislation, issue executive orders, direct federal agencies, negotiate treaties, and nominate judges & officers.'],
+      ['Executive Office', 'Supported by the White House staff, National Security Council, and Office of Management and Budget.']
+    ]
+  },
+  state: {
+    tag: 'Executive Department',
+    title: 'Department of State',
+    desc: 'The Department of State leads America’s foreign policy and international diplomacy, managing diplomatic missions, embassies, foreign treaties, and global relations.',
+    url: 'https://www.state.gov/',
+    linkText: 'Visit State.gov',
+    keywords: ['rubio', 'marco rubio', 'diplomacy', 'foreign', 'ambassador', 'embassy', 'passports', 'treaties'],
+    facts: [
+      ['Secretary of State', 'Marco Rubio'],
+      ['Headquarters', 'Harry S. Truman Building, Washington, D.C.'],
+      ['Core Missions', 'Foreign relations, passport services, foreign assistance, and embassy protection.']
+    ]
+  },
+  treasury: {
+    tag: 'Executive Department',
+    title: 'Department of the Treasury',
+    desc: 'The Treasury Department manages federal finances, collects taxes through the IRS, produces currency, manages public debt, and enforces financial sanctions.',
+    url: 'https://home.treasury.gov/',
+    linkText: 'Visit Treasury.gov',
+    keywords: ['bessent', 'scott bessent', 'taxes', 'irs', 'money', 'currency', 'mint', 'bonds', 'debt', 'economy'],
+    facts: [
+      ['Secretary of the Treasury', 'Scott Bessent'],
+      ['Key Bureaus', 'Internal Revenue Service (IRS), U.S. Mint, Bureau of Engraving and Printing, OCC, FinCEN.']
+    ]
+  },
+  defense: {
+    tag: 'Executive Department',
+    title: 'Department of Defense (DoD)',
+    desc: 'The Department of Defense oversees the nation’s armed forces and military defense strategy to protect the security of the United States.',
+    url: 'https://www.defense.gov/',
+    linkText: 'Visit Defense.gov',
+    keywords: ['hegseth', 'pete hegseth', 'dod', 'pentagon', 'military', 'army', 'navy', 'air force', 'marines', 'space force'],
+    facts: [
+      ['Secretary of Defense', 'Pete Hegseth'],
+      ['Headquarters', 'The Pentagon, Arlington, VA'],
+      ['Service Branches', 'Army, Navy, Air Force, Marine Corps, Space Force, and Joint Chiefs of Staff.']
+    ]
+  },
+  doj: {
+    tag: 'Executive Department',
+    title: 'Department of Justice (DOJ)',
+    desc: 'The DOJ enforces federal laws, investigates federal crimes, represents the United States in legal matters, and protects civil rights.',
+    url: 'https://www.justice.gov/',
+    linkText: 'Visit Justice.gov',
+    keywords: ['bondi', 'pam bondi', 'attorney general', 'fbi', 'dea', 'atf', 'marshals', 'crime', 'law enforcement', 'prosecutor', 'kash patel'],
+    facts: [
+      ['Attorney General', 'Pam Bondi'],
+      ['Key Agencies', 'Federal Bureau of Investigation (FBI), DEA, ATF, U.S. Marshals Service, Federal Bureau of Prisons, and 93 U.S. Attorneys.']
+    ]
+  },
+  interior: {
+    tag: 'Executive Department',
+    title: 'Department of the Interior (DOI)',
+    desc: 'Manages America’s natural resources, national parks, public lands, wildlife conservation, and honors trust responsibilities to Native American tribes.',
+    url: 'https://www.doi.gov/',
+    linkText: 'Visit DOI.gov',
+    keywords: ['burgum', 'doug burgum', 'doi', 'parks', 'national park service', 'nps', 'blm', 'wildlife', 'public lands', 'tribal'],
+    facts: [
+      ['Secretary of the Interior', 'Doug Burgum'],
+      ['Key Bureaus', 'National Park Service (NPS), Bureau of Land Management (BLM), U.S. Fish and Wildlife Service, Bureau of Indian Affairs.']
+    ]
+  },
+  agriculture: {
+    tag: 'Executive Department',
+    title: 'Department of Agriculture (USDA)',
+    desc: 'Supports agricultural production, food safety inspection, forestry, nutrition assistance programs (SNAP), and rural economic development.',
+    url: 'https://www.usda.gov/',
+    linkText: 'Visit USDA.gov',
+    keywords: ['rollins', 'brooke rollins', 'usda', 'farming', 'crops', 'food safety', 'snap', 'food stamps', 'forest service', 'nutrition'],
+    facts: [
+      ['Secretary of Agriculture', 'Brooke Rollins'],
+      ['Key Agencies', 'U.S. Forest Service, Food Safety and Inspection Service (FSIS), Natural Resources Conservation Service.']
+    ]
+  },
+  commerce: {
+    tag: 'Executive Department',
+    title: 'Department of Commerce (DOC)',
+    desc: 'Promotes job creation, economic growth, technological competitiveness, export promotion, census data, and oceanic and atmospheric monitoring.',
+    url: 'https://www.commerce.gov/',
+    linkText: 'Visit Commerce.gov',
+    keywords: ['lutnick', 'howard lutnick', 'doc', 'census', 'noaa', 'patents', 'uspto', 'weather', 'trade', 'tariffs', 'business'],
+    facts: [
+      ['Secretary of Commerce', 'Howard Lutnick'],
+      ['Key Bureaus', 'U.S. Census Bureau, NOAA & National Weather Service, U.S. Patent and Trademark Office (USPTO), NIST.']
+    ]
+  },
+  labor: {
+    tag: 'Executive Department',
+    title: 'Department of Labor (DOL)',
+    desc: 'Fosters and promotes the welfare of job seekers, wage earners, and retirees by improving working conditions, advancing opportunities, and ensuring benefits.',
+    url: 'https://www.dol.gov/',
+    linkText: 'Visit DOL.gov',
+    keywords: ['chavez-deremer', 'lori chavez-deremer', 'dol', 'osha', 'workers', 'jobs', 'wages', 'unemployment', 'workplace safety'],
+    facts: [
+      ['Secretary of Labor', 'Lori Chavez-DeRemer'],
+      ['Key Agencies', 'Occupational Safety and Health Administration (OSHA), Bureau of Labor Statistics (BLS), Wage and Hour Division.']
+    ]
+  },
+  hhs: {
+    tag: 'Executive Department',
+    title: 'Health & Human Services (HHS)',
+    desc: 'Enhances the health and well-being of all Americans by providing essential human services and fostering medical and public health advances.',
+    url: 'https://www.hhs.gov/',
+    linkText: 'Visit HHS.gov',
+    keywords: ['kennedy', 'robert f kennedy', 'rfk', 'hhs', 'cdc', 'fda', 'nih', 'medicare', 'medicaid', 'health', 'medicine'],
+    facts: [
+      ['Secretary of HHS', 'Robert F. Kennedy Jr.'],
+      ['Key Agencies', 'CDC, FDA, NIH, CMS (Medicare/Medicaid), Administration for Children and Families.']
+    ]
+  },
+  hud: {
+    tag: 'Executive Department',
+    title: 'Housing & Urban Development (HUD)',
+    desc: 'Creates strong, sustainable, inclusive communities and quality affordable homes through housing programs and fair housing enforcement.',
+    url: 'https://www.hud.gov/',
+    linkText: 'Visit HUD.gov',
+    keywords: ['turner', 'scott turner', 'hud', 'housing', 'mortgage', 'fha', 'section 8', 'urban', 'homelessness'],
+    facts: [
+      ['Secretary of HUD', 'Scott Turner'],
+      ['Key Programs', 'Federal Housing Administration (FHA), Section 8 vouchers, Community Development Block Grants (CDBG).']
+    ]
+  },
+  transportation: {
+    tag: 'Executive Department',
+    title: 'Department of Transportation (DOT)',
+    desc: 'Ensures our nation has the safest, most efficient and modern transportation system for aviation, highways, railroads, pipelines, and maritime transit.',
+    url: 'https://www.transportation.gov/',
+    linkText: 'Visit Transportation.gov',
+    keywords: ['duffy', 'sean duffy', 'dot', 'faa', 'highways', 'aviation', 'airlines', 'transit', 'railroads', 'roads'],
+    facts: [
+      ['Secretary of Transportation', 'Sean Duffy'],
+      ['Key Administrations', 'Federal Aviation Administration (FAA), Federal Highway Administration (FHWA), Federal Railroad Administration (FRA), NHTSA.']
+    ]
+  },
+  energy: {
+    tag: 'Executive Department',
+    title: 'Department of Energy (DOE)',
+    desc: 'Advances energy security, clean energy innovation, the electrical grid, environmental cleanup, and oversees the nation’s nuclear security enterprise.',
+    url: 'https://www.energy.gov/',
+    linkText: 'Visit Energy.gov',
+    keywords: ['wright', 'chris wright', 'doe', 'nuclear', 'grid', 'power', 'electricity', 'oil', 'gas', 'renewable', 'science labs'],
+    facts: [
+      ['Secretary of Energy', 'Chris Wright'],
+      ['Key Components', 'National Nuclear Security Administration (NNSA), 17 DOE National Laboratories, Office of Science.']
+    ]
+  },
+  education: {
+    tag: 'Executive Department',
+    title: 'Department of Education (ED)',
+    desc: 'Establishes policy on federal financial aid for education, distributes and monitors funds, collects data on schools, and enforces federal educational laws.',
+    url: 'https://www.ed.gov/',
+    linkText: 'Visit ED.gov',
+    keywords: ['mcmahon', 'linda mcmahon', 'ed', 'schools', 'student loans', 'fafsa', 'pell grants', 'teachers', 'colleges'],
+    facts: [
+      ['Secretary of Education', 'Linda McMahon'],
+      ['Key Areas', 'Federal Student Aid (FAFSA/Pell Grants), Title I grants, Special Education (IDEA), Office for Civil Rights.']
+    ]
+  },
+  va: {
+    tag: 'Executive Department',
+    title: 'Department of Veterans Affairs (VA)',
+    desc: 'Provides lifelong healthcare services, disability benefits, education assistance (GI Bill), home loans, and memorial services to eligible military veterans.',
+    url: 'https://www.va.gov/',
+    linkText: 'Visit VA.gov',
+    keywords: ['collins', 'doug collins', 'va', 'veterans', 'gi bill', 'vha', 'military health', 'disability benefits'],
+    facts: [
+      ['Secretary of Veterans Affairs', 'Doug Collins'],
+      ['Key Administrations', 'Veterans Health Administration (VHA - largest integrated health system), Veterans Benefits Administration (VBA).']
+    ]
+  },
+  dhs: {
+    tag: 'Executive Department',
+    title: 'Department of Homeland Security (DHS)',
+    desc: 'Protects the United States against diverse threats, safeguarding borders, critical infrastructure, maritime safety, and emergency response.',
+    url: 'https://www.dhs.gov/',
+    linkText: 'Visit DHS.gov',
+    keywords: ['noem', 'kristi noem', 'dhs', 'fema', 'tsa', 'border', 'cbp', 'coast guard', 'secret service', 'immigration', 'uscis', 'cisa'],
+    facts: [
+      ['Secretary of Homeland Security', 'Kristi Noem'],
+      ['Key Components', 'FEMA, TSA, U.S. Customs and Border Protection (CBP), U.S. Coast Guard, Secret Service, USCIS, CISA.']
+    ]
+  },
+  scotus: {
+    tag: 'Judicial Branch',
+    title: 'Supreme Court of the United States',
+    desc: 'The Supreme Court is the highest court in the nation and the only court specifically established by Article III of the Constitution. It consists of nine justices who hold lifetime appointments.',
+    url: 'https://www.supremecourt.gov/',
+    linkText: 'Visit SupremeCourt.gov Official Site',
+    keywords: ['supreme court', 'justices', 'chief justice', 'roberts', 'thomas', 'alito', 'sotomayor', 'kagan', 'gorsuch', 'kavanaugh', 'barrett', 'jackson', 'judicial review', 'constitutionality'],
+    facts: [
+      ['Chief Justice', 'John G. Roberts, Jr.'],
+      ['Associate Justices', 'Clarence Thomas, Samuel A. Alito Jr., Sonia Sotomayor, Elena Kagan, Neil M. Gorsuch, Brett M. Kavanaugh, Amy Coney Barrett, Ketanji Brown Jackson.'],
+      ['Judicial Review', 'Power to declare federal or state laws and executive actions unconstitutional (Marbury v. Madison).']
+    ]
+  },
+  appeals: {
+    tag: 'Judicial Branch',
+    title: 'U.S. Courts of Appeals (Circuit Courts)',
+    desc: 'The 13 appellate courts sit between the district courts and Supreme Court. They review trial court decisions for errors of legal interpretation and procedure.',
+    url: 'https://www.uscourts.gov/about-federal-courts/court-role-and-structure',
+    linkText: 'Learn More at USCourts.gov',
+    keywords: ['appellate', 'circuit', 'circuits', 'appeals court', 'federal circuit', 'panel'],
+    facts: [
+      ['Structure', '12 regional circuits (including D.C. Circuit) plus the nationwide Federal Circuit.'],
+      ['Panels', 'Cases are typically heard and decided by rotating panels of 3 appellate judges.'],
+      ['Finality', 'Appellate rulings resolve the vast majority of federal appeals without Supreme Court review.']
+    ]
+  },
+  district: {
+    tag: 'Judicial Branch',
+    title: 'U.S. District Courts',
+    desc: 'The 94 federal district courts are the primary trial courts of the federal system. They have jurisdiction over civil disputes arising under federal law and federal criminal prosecutions.',
+    url: 'https://www.uscourts.gov/court-locator',
+    linkText: 'Find Your Federal District Court at USCourts.gov',
+    keywords: ['trial', 'trial court', 'jury', 'bench trial', 'civil', 'criminal', '94 districts'],
+    facts: [
+      ['Locations', '94 federal judicial districts across all 50 states, D.C., Puerto Rico, Guam, Virgin Islands, and Northern Mariana Islands.'],
+      ['Functions', 'Hear witness testimony, admit evidence, conduct jury and bench trials, and issue judgments.']
+    ]
+  },
+  checks: {
+    tag: 'Constitutional System',
+    title: 'System of Checks and Balances',
+    desc: 'The Constitution balances power among the three separate branches so that no single branch can dominate the government. Each branch possesses specific constitutional mechanisms to check the authority of the other two.',
+    url: 'https://www.usa.gov/branches-of-government',
+    linkText: 'Read More at USAGov',
+    keywords: ['checks and balances', 'separation of powers', 'veto', 'impeachment', 'advice and consent', 'judicial review', 'override', 'nominations'],
+    facts: [
+      ['Congress checks President', 'Overrides vetoes with a 2/3 vote, controls funding, investigates agencies, and the Senate confirms nominees & treaties.'],
+      ['President checks Congress', 'Can veto legislative bills passed by Congress and calls special sessions.'],
+      ['President checks Courts', 'Nominates all Supreme Court justices and federal judges.'],
+      ['Courts check Both', 'Judicial review allows federal courts to declare legislative acts or executive orders unconstitutional.']
+    ]
+  }
+};
+
+// MODAL OPENER
+const dialog = document.querySelector('#infoDialog');
+const modalTag = document.querySelector('#modalTag');
+const modalTitle = document.querySelector('#modalTitle');
+const modalContent = document.querySelector('#modalContent');
+
+function openDetails(key) {
+  const item = DATA[key];
+  if (!item) return;
+
+  modalTag.textContent = item.tag;
+  modalTitle.textContent = item.title;
+
+  let html = `<p>${item.desc}</p>`;
+  if (item.facts && item.facts.length) {
+    html += `<h3>Key Facts &amp; Leadership</h3><ul class="info-list">`;
+    item.facts.forEach(([title, detail]) => {
+      html += `<li><b>${title}</b>${detail}</li>`;
+    });
+    html += `</ul>`;
+  }
+  html += `<a class="gov-btn" href="${item.url}" target="_blank" rel="noopener noreferrer">${item.linkText} ↗</a>`;
+  html += `<p class="note">All official links open verified government websites (.gov) in a new browser tab.</p>`;
+
+  modalContent.innerHTML = html;
+  dialog.showModal();
+}
+
+// BIND CLICKS & KEYBOARD ON INTERACTIVE ITEMS
+const interactiveItems = document.querySelectorAll('.item');
+interactiveItems.forEach(el => {
+  const key = el.dataset.key;
+  el.addEventListener('click', () => openDetails(key));
+  el.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openDetails(key);
+    }
+  });
+});
+
+// REAL-TIME SEARCH FILTER
+const searchInput = document.querySelector('#search');
+const clearBtn = document.querySelector('#clear');
+const searchStatus = document.querySelector('#searchStatus');
+
+function runSearch() {
+  const q = searchInput.value.trim().toLowerCase();
+  let matches = 0;
+
+  interactiveItems.forEach(el => {
+    const key = el.dataset.key;
+    const data = DATA[key];
+    if (!data) return;
+
+    const searchable = [
+      el.innerText,
+      data.tag,
+      data.title,
+      data.desc,
+      ...(data.keywords || []),
+      ...(data.facts ? data.facts.flat() : [])
+    ].join(' ').toLowerCase();
+
+    const hit = !q || searchable.includes(q);
+    el.classList.toggle('search-hit', Boolean(q && hit));
+    el.classList.toggle('filter-hidden', Boolean(q && !hit));
+    if (hit) matches++;
+  });
+
+  if (!q) {
+    searchStatus.textContent = 'Type to filter and highlight matching parts. Click any box to open details.';
+  } else if (matches > 0) {
+    searchStatus.textContent = `Found ${matches} highlighted matching item${matches === 1 ? '' : 's'}. Click any highlighted box for details.`;
+  } else {
+    searchStatus.textContent = `No matches found for "${searchInput.value}". Try: "Cabinet", "Court", "Defense", "Senator", "DOJ"…`;
+  }
+}
+
+searchInput.addEventListener('input', runSearch);
+clearBtn.addEventListener('click', () => {
+  searchInput.value = '';
+  runSearch();
+  searchInput.focus();
+});
+
+// CONGRESSIONAL MEMBER LOOKUP HANDLER WITH ENHANCED ROUTING
+const memberSearch = document.querySelector('#memberSearch');
+const memberType = document.querySelector('#memberType');
+const memberGo = document.querySelector('#memberGo');
+
+function executeMemberSearch() {
+  const rawQ = memberSearch.value.trim();
+  const type = memberType.value;
+  let targetUrl = 'https://www.congress.gov/members';
+
+  const isZip = /^\d{5}(-\d{4})?$/.test(rawQ);
+
+  if (type === 'house') {
+    if (isZip) {
+      targetUrl = `https://ziplook.house.gov/htbin/findrep_house?ZIP=${encodeURIComponent(rawQ.substring(0,5))}`;
+    } else if (rawQ) {
+      targetUrl = `https://www.congress.gov/search?q=${encodeURIComponent(JSON.stringify({source:'members',chamber:'House of Representatives',search:rawQ}))}`;
+    } else {
+      targetUrl = 'https://www.house.gov/representatives/find-your-representative';
+    }
+  } else if (type === 'senate') {
+    if (rawQ) {
+      targetUrl = `https://www.congress.gov/search?q=${encodeURIComponent(JSON.stringify({source:'members',chamber:'Senate',search:rawQ}))}`;
+    } else {
+      targetUrl = 'https://www.senate.gov/senators/senators-contact.htm';
+    }
+  } else if (type === 'address') {
+    targetUrl = 'https://www.congress.gov/members/find-your-member';
+  } else {
+    // Default: Congress.gov
+    if (isZip) {
+      targetUrl = `https://ziplook.house.gov/htbin/findrep_house?ZIP=${encodeURIComponent(rawQ.substring(0,5))}`;
+    } else if (rawQ) {
+      targetUrl = `https://www.congress.gov/search?q=${encodeURIComponent(JSON.stringify({source:'members',search:rawQ}))}`;
+    } else {
+      targetUrl = 'https://www.congress.gov/members';
+    }
+  }
+
+  window.open(targetUrl, '_blank', 'noopener,noreferrer');
+}
+
+memberGo.addEventListener('click', executeMemberSearch);
+memberSearch.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') executeMemberSearch();
+});
+</script>
+</body>
+</html>
